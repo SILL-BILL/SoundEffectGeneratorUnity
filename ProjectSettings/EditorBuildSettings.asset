@@ -5,6 +5,9 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
-    path: Assets/FalconWorks/SoundEffectManager/Scenes/Demo.unity
+  - enabled: 0
+    path: Assets/FalconWorks/SoundEffectGenerator/Scenes/scene_demo/Demo.unity
     guid: 01db7007bfc7444b99651ca7f9043465
+  - enabled: 1
+    path: Assets/FalconWorks/SoundEffectGenerator/Scenes/scene_demo2/Demo2.unity
+    guid: a0c0965f0d4fc454698ec9928af456a0

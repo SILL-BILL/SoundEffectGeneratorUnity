@@ -9,15 +9,19 @@ public class SoundEffectGenerator : MonoBehaviour {
 	/// <summary>
 	/// The pet prefab table.
 	/// </summary>
-	[SerializeField] private SoundEffectPrefabTable soundEffectPrefabTable;
+	[SerializeField] private SoundEffectPrefabDataTable m_SoundEffectPrefabDataTable;
 	#endregion
 
 	// --------
 	#region メンバフィールド
 	/// <summary>
-	/// The pet prefabs.
+	/// The se prefabs.
 	/// </summary>
-	private Dictionary<string, GameObject> soundEffectPrefabs;
+	private Dictionary<string, SoundEffectPrefabData> m_SoundEffectPrefabDataDict;
+	public Dictionary<string, SoundEffectPrefabData> SoundEffectPrefabDataDict {
+		get { return m_SoundEffectPrefabDataDict; }
+		private set { m_SoundEffectPrefabDataDict = value; }
+	}
 	#endregion
 
 	// --------
@@ -26,7 +30,7 @@ public class SoundEffectGenerator : MonoBehaviour {
 	/// 初期化処理
 	/// </summary>
 	void Awake() {
-		soundEffectPrefabs = soundEffectPrefabTable.GetTable ();
+		m_SoundEffectPrefabDataDict = m_SoundEffectPrefabDataTable.GetTable ();
 	}
 	/// <summary> 
 	/// 開始処理
@@ -57,14 +61,36 @@ public class SoundEffectGenerator : MonoBehaviour {
 	/// <param name="_keyName">Key name.</param>
 	public void popin(string _keyName){
 
-		if (!string.IsNullOrEmpty(_keyName) && soundEffectPrefabs.ContainsKey(_keyName)) {
+		if (!string.IsNullOrEmpty(_keyName) && m_SoundEffectPrefabDataDict.ContainsKey(_keyName)) {
 
-			Instantiate (
-				soundEffectPrefabs[_keyName],
-				this.transform.position,
-				Quaternion.identity,
-				this.transform
-			);
+			GameObject effObj;
+			Vector3 pos = Vector3.zero;
+			if(m_SoundEffectPrefabDataDict[_keyName].m_PopinPosition != null){
+				pos = m_SoundEffectPrefabDataDict [_keyName].m_PopinPosition;
+			}
+
+
+			if (m_SoundEffectPrefabDataDict [_keyName].m_PopinPosition != null) {
+			
+				effObj = (GameObject)Instantiate (
+					m_SoundEffectPrefabDataDict [_keyName].m_SoundEffectPrefab,
+					Vector3.zero,
+					Quaternion.identity,
+					m_SoundEffectPrefabDataDict [_keyName].m_ParentTransform
+				);
+				effObj.transform.localPosition = pos;
+
+			} else {
+
+				Instantiate (
+					m_SoundEffectPrefabDataDict [_keyName].m_SoundEffectPrefab,
+					pos,
+					Quaternion.identity,
+					this.transform
+				);
+			}
+
+
 		}
 	}
 	#endregion
@@ -72,11 +98,34 @@ public class SoundEffectGenerator : MonoBehaviour {
 	// --------
 	#region インナークラス
 	/// <summary>
+	/// SoundEffectPrefabData
+	/// </summary>
+	[System.SerializableAttribute]
+	public class SoundEffectPrefabData {
+		/// <summary>
+		/// SEプレファブ
+		/// </summary>
+		public GameObject m_SoundEffectPrefab;
+		/// <summary>
+		/// The popin position.
+		/// </summary>
+		public Vector3 m_PopinPosition;
+		/// <summary>
+		/// The parent transform.
+		/// </summary>
+		public Transform m_ParentTransform;
+
+		//コンストラクタ
+		public SoundEffectPrefabData(){
+		}
+	}
+
+	/// <summary>
 	/// ジェネリックを隠すために継承してしまう
 	/// [System.Serializable]を書くのを忘れない
 	/// </summary>
 	[System.Serializable]
-	public class SoundEffectPrefabTable : Serialize.TableBase<string, GameObject, SoundEffectPrefabPair>{
+	public class SoundEffectPrefabDataTable : Serialize.TableBase<string, SoundEffectPrefabData, SoundEffectPrefabDataPair>{
 
 	}
 	/// <summary>
@@ -84,8 +133,8 @@ public class SoundEffectGenerator : MonoBehaviour {
 	/// [System.Serializable]を書くのを忘れない
 	/// </summary>
 	[System.Serializable]
-	public class SoundEffectPrefabPair : Serialize.KeyAndValue<string, GameObject>{
-		public SoundEffectPrefabPair (string key, GameObject value) : base (key, value) {
+	public class SoundEffectPrefabDataPair : Serialize.KeyAndValue<string, SoundEffectPrefabData>{
+		public SoundEffectPrefabDataPair (string key, SoundEffectPrefabData value) : base (key, value) {
 		}
 	}
 	#endregion
